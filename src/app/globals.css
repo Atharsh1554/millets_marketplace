@@ -1,26 +1,98 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Millet Market design tokens — natural green, earth brown, millet gold, cream, white */
+@theme {
+  --color-leaf-50: #f1f6ee;
+  --color-leaf-100: #dfeccf;
+  --color-leaf-200: #c2dba8;
+  --color-leaf-300: #9cc278;
+  --color-leaf-400: #77a652;
+  --color-leaf-500: #5a8a3a;
+  --color-leaf-600: #46702c;
+  --color-leaf-700: #2f5d34;
+  --color-leaf-800: #244a29;
+  --color-leaf-900: #183320;
+
+  --color-earth-50: #f8f2ec;
+  --color-earth-100: #eedfd0;
+  --color-earth-200: #dcc0a3;
+  --color-earth-300: #c39c76;
+  --color-earth-400: #a87a52;
+  --color-earth-500: #8d6240;
+  --color-earth-600: #7a5233;
+  --color-earth-700: #5f3f28;
+  --color-earth-800: #452e1e;
+  --color-earth-900: #2e1f14;
+
+  --color-millet-50: #fdf8e8;
+  --color-millet-100: #faefc6;
+  --color-millet-200: #f4dd8c;
+  --color-millet-300: #ecc752;
+  --color-millet-400: #d9a637;
+  --color-millet-500: #c28d22;
+  --color-millet-600: #9f6f19;
+  --color-millet-700: #7b5317;
+
+  --color-cream: #faf6ec;
+  --color-cream-dark: #f2ead6;
+  --color-ink: #1f2a1c;
+  --color-muted: #66705f;
+
+  --font-sans: var(--font-body), var(--font-tamil), var(--font-malayalam), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display-face), var(--font-tamil), var(--font-malayalam), var(--font-devanagari), ui-serif, Georgia, serif;
+
+  --shadow-card: 0 1px 2px rgb(46 31 20 / 0.04), 0 4px 16px rgb(46 31 20 / 0.06);
+  --shadow-lift: 0 2px 4px rgb(46 31 20 / 0.06), 0 12px 32px rgb(46 31 20 / 0.10);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-cream);
+  color: var(--color-ink);
+}
+
+/* Tamil / Malayalam / Hindi words can be much longer than English ones; on narrow phones let them
+   wrap instead of pushing the page wider than the screen (English rendering is unchanged). */
+html:is([lang="ta"], [lang="ml"], [lang="hi"]) body {
+  overflow-wrap: anywhere;
+}
+
+/* Focus visibility for keyboard users */
+:focus-visible {
+  outline: 2px solid var(--color-millet-400);
+  outline-offset: 2px;
+}
+
+@layer components {
+  .input {
+    @apply w-full rounded-xl border border-earth-200 bg-white px-3.5 py-2.5 text-[15px] text-ink placeholder:text-earth-300 shadow-sm transition focus:border-leaf-500 focus:ring-4 focus:ring-leaf-100 focus:outline-none disabled:bg-cream-dark;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-semibold text-earth-800;
+  }
+  .card {
+    @apply rounded-2xl border border-earth-100 bg-white shadow-[var(--shadow-card)];
+  }
+  .table-wrap {
+    @apply overflow-x-auto rounded-2xl border border-earth-100 bg-white shadow-[var(--shadow-card)];
+  }
+  .table {
+    @apply w-full min-w-[720px] text-left text-sm;
+  }
+  .table th {
+    @apply bg-cream px-4 py-3 text-xs font-semibold tracking-wide text-earth-600 uppercase;
+  }
+  .table td {
+    @apply border-t border-earth-100 px-4 py-3 align-middle;
+  }
+  .table tbody tr:hover {
+    @apply bg-leaf-50/40;
+  }
+  .grain-bg {
+    background-image: radial-gradient(rgb(194 141 34 / 0.12) 1.2px, transparent 1.2px);
+    background-size: 18px 18px;
+  }
 }

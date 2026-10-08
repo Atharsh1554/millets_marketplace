@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Grain cleaning machine">
+  <rect width="400" height="300" fill="#eef1ec"/>
+  <circle cx="340" cy="50" r="80" fill="#fff" opacity=".35"/>
+  <ellipse cx="200" cy="262" rx="140" ry="12" fill="#000" opacity=".08"/>
+  
+    <rect x="90" y="120" width="220" height="70" rx="10" fill="#2f5d34" transform="rotate(-8 200 155)"/>
+    <g stroke="#fffaf0" stroke-width="3" opacity=".8"><line x1="115" y1="140" x2="115" y2="170"/><line x1="135" y1="137" x2="135" y2="167"/><line x1="155" y1="134" x2="155" y2="164"/><line x1="175" y1="131" x2="175" y2="161"/><line x1="195" y1="128" x2="195" y2="158"/><line x1="215" y1="125" x2="215" y2="155"/><line x1="235" y1="122" x2="235" y2="152"/><line x1="255" y1="119" x2="255" y2="149"/><line x1="275" y1="116" x2="275" y2="146"/></g>
+    <rect x="120" y="195" width="12" height="50" fill="#7b8a7a"/><rect x="268" y="175" width="12" height="70" fill="#7b8a7a"/>
+    <g fill="#d9a637"><circle cx="130" cy="112" r="3.5"/><circle cx="141" cy="105.5" r="3.5"/><circle cx="152" cy="99" r="3.5"/><circle cx="163" cy="107.5" r="3.5"/><circle cx="174" cy="101" r="3.5"/><circle cx="185" cy="94.5" r="3.5"/><circle cx="196" cy="103" r="3.5"/><circle cx="207" cy="96.5" r="3.5"/><circle cx="218" cy="90" r="3.5"/><circle cx="229" cy="98.5" r="3.5"/><circle cx="240" cy="92" r="3.5"/><circle cx="251" cy="85.5" r="3.5"/><circle cx="262" cy="94" r="3.5"/><circle cx="273" cy="87.5" r="3.5"/></g>
+</svg>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Agricultural hardware">
+  <rect width="400" height="300" fill="#eef1ec"/>
+  <circle cx="340" cy="50" r="80" fill="#fff" opacity=".35"/>
+  <ellipse cx="200" cy="262" rx="140" ry="12" fill="#000" opacity=".08"/>
+  
+    <rect x="100" y="150" width="200" height="70" rx="12" fill="#2f5d34"/>
+    <circle cx="140" cy="230" r="22" fill="#7b8a7a"/><circle cx="260" cy="230" r="22" fill="#7b8a7a"/>
+    <circle cx="140" cy="230" r="8" fill="#fffaf0"/><circle cx="260" cy="230" r="8" fill="#fffaf0"/>
+    <rect x="200" y="100" width="70" height="55" rx="8" fill="#8d6240"/>
+    <path d="M230 100 v-30 h25" stroke="#7b8a7a" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <circle cx="80" cy="120" r="18" fill="#d9a637"/>
+</svg>

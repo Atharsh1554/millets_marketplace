@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Drying equipment">
+  <rect width="400" height="300" fill="#fdf3df"/>
+  <circle cx="340" cy="50" r="80" fill="#fff" opacity=".35"/>
+  <ellipse cx="200" cy="262" rx="140" ry="12" fill="#000" opacity=".08"/>
+  
+    <circle cx="90" cy="80" r="34" fill="#d9a637"/>
+    <g stroke="#d9a637" stroke-width="4" stroke-linecap="round"><line x1="134" y1="80" x2="144" y2="80"/><line x1="121.11269837220809" y1="111.11269837220809" x2="128.18376618407356" y2="118.18376618407356"/><line x1="90" y1="124" x2="90" y2="134"/><line x1="58.88730162779191" y1="111.11269837220809" x2="51.81623381592644" y2="118.18376618407356"/><line x1="46" y1="80" x2="36" y2="80"/><line x1="58.8873016277919" y1="48.88730162779191" x2="51.816233815926424" y2="41.81623381592644"/><line x1="89.99999999999999" y1="36" x2="89.99999999999999" y2="26"/><line x1="121.11269837220809" y1="48.8873016277919" x2="128.18376618407356" y2="41.816233815926424"/></g>
+    <path d="M150 140 L290 140 L310 240 L130 240 Z" fill="#8d6240"/>
+    <g fill="#fffaf0" opacity=".85"><rect x="158" y="155" width="148" height="16" rx="4"/><rect x="162" y="183" width="140" height="16" rx="4"/><rect x="166" y="211" width="132" height="16" rx="4"/></g>
+    <path d="M220 110 q-10 -12 0 -24 q10 -12 0 -24" stroke="#7b8a7a" stroke-width="4" fill="none"/>
+</svg>

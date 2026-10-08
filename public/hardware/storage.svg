@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Storage equipment">
+  <rect width="400" height="300" fill="#eef3e8"/>
+  <circle cx="340" cy="50" r="80" fill="#fff" opacity=".35"/>
+  <ellipse cx="200" cy="262" rx="140" ry="12" fill="#000" opacity=".08"/>
+  
+    <rect x="130" y="80" width="140" height="160" rx="18" fill="#7b8a7a"/>
+    <path d="M130 100 Q200 50 270 100" fill="#2f5d34"/>
+    <g stroke="#fffaf0" stroke-width="3" opacity=".6"><line x1="130" y1="140" x2="270" y2="140"/><line x1="130" y1="190" x2="270" y2="190"/></g>
+    <rect x="185" y="215" width="30" height="25" rx="4" fill="#d9a637"/>
+    <rect x="60" y="190" width="60" height="50" rx="8" fill="#8d6240"/><rect x="290" y="200" width="55" height="40" rx="8" fill="#8d6240"/>
+</svg>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Millet processing machine">
+  <rect width="400" height="300" fill="#eef3e8"/>
+  <circle cx="340" cy="50" r="80" fill="#fff" opacity=".35"/>
+  <ellipse cx="200" cy="262" rx="140" ry="12" fill="#000" opacity=".08"/>
+  
+    <rect x="110" y="110" width="180" height="140" rx="14" fill="#2f5d34"/>
+    <rect x="130" y="130" width="70" height="50" rx="6" fill="#fffaf0" opacity=".9"/>
+    <circle cx="245" cy="155" r="22" fill="#d9a637"/><circle cx="245" cy="155" r="8" fill="#2f5d34"/>
+    <path d="M150 110 L170 60 L230 60 L250 110 Z" fill="#7b8a7a"/>
+    <rect x="285" y="200" width="60" height="16" rx="4" fill="#7b8a7a"/>
+    <g fill="#d9a637"><circle cx="305" cy="226" r="3"/><circle cx="313" cy="226" r="3"/><circle cx="321" cy="226" r="3"/><circle cx="329" cy="226" r="3"/><circle cx="337" cy="226" r="3"/><circle cx="305" cy="234" r="3"/><circle cx="313" cy="234" r="3"/><circle cx="321" cy="234" r="3"/><circle cx="329" cy="234" r="3"/><circle cx="337" cy="234" r="3"/></g>
+</svg>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Weighing equipment">
+  <rect width="400" height="300" fill="#f4efdc"/>
+  <circle cx="340" cy="50" r="80" fill="#fff" opacity=".35"/>
+  <ellipse cx="200" cy="262" rx="140" ry="12" fill="#000" opacity=".08"/>
+  
+    <rect x="110" y="200" width="180" height="40" rx="8" fill="#2f5d34"/>
+    <rect x="150" y="185" width="100" height="18" rx="4" fill="#7b8a7a"/>
+    <rect x="160" y="210" width="80" height="22" rx="4" fill="#cfe3c2"/>
+    <text x="200" y="227" font-family="monospace" font-size="16" font-weight="700" fill="#2f5d34" text-anchor="middle">50.0 kg</text>
+    <path d="M150 185 L165 110 L235 110 L250 185 Z" fill="#8d6240"/>
+    <path d="M165 110 Q200 90 235 110" fill="#d9a637"/>
+</svg>

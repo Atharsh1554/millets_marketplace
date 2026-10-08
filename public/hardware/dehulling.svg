@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Dehulling machine">
+  <rect width="400" height="300" fill="#f6eccb"/>
+  <circle cx="340" cy="50" r="80" fill="#fff" opacity=".35"/>
+  <ellipse cx="200" cy="262" rx="140" ry="12" fill="#000" opacity=".08"/>
+  
+    <path d="M160 70 L240 70 L220 120 L180 120 Z" fill="#7b8a7a"/>
+    <rect x="140" y="120" width="120" height="110" rx="12" fill="#8d6240"/>
+    <circle cx="200" cy="170" r="32" fill="#fffaf0"/><circle cx="200" cy="170" r="20" fill="#d9a637"/>
+    <path d="M200 150 v40 M180 170 h40" stroke="#8d6240" stroke-width="5" stroke-linecap="round"/>
+    <rect x="255" y="200" width="70" height="14" rx="4" fill="#7b8a7a"/>
+    <g fill="#d9a637"><ellipse cx="80" cy="232" rx="4" ry="3"/><ellipse cx="86" cy="226" rx="4" ry="3"/><ellipse cx="92" cy="232" rx="4" ry="3"/><ellipse cx="98" cy="226" rx="4" ry="3"/><ellipse cx="104" cy="232" rx="4" ry="3"/><ellipse cx="110" cy="226" rx="4" ry="3"/><ellipse cx="116" cy="232" rx="4" ry="3"/><ellipse cx="122" cy="226" rx="4" ry="3"/></g>
+</svg>

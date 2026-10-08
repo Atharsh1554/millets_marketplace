@@ -1,0 +1,826 @@
+// Millet Marketplace — farmer harvest procurement + marketplace
+//
+// Conventions
+//   * Money is stored as integer PAISE (₹1 = 100 paise)  -> fields end in `Paise`
+//   * Quantities are stored as integer GRAMS (1 kg = 1000 g) -> fields end in `Grams`
+//   * `isDemo` marks rows created by the seed script so demo data is always identifiable.
+//
+// Workflow chain:
+//   Farmer -> HarvestSubmission -> AdminReview -> PhysicalTest (+SampleCollection, results)
+//          -> Procurement -> Batch -> Inventory -> Product -> OrderItem
+//          -> FarmerPayment (tracked separately from sales revenue)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ───────────────────────────── Enums ─────────────────────────────
+
+enum Role {
+  CUSTOMER
+  FARMER
+  QUALITY_TEAM
+  ADMIN
+}
+
+enum MilletType {
+  FINGER_MILLET // Ragi
+  PEARL_MILLET // Bajra
+  FOXTAIL_MILLET
+  LITTLE_MILLET
+  KODO_MILLET
+  BARNYARD_MILLET
+  PROSO_MILLET
+  BROWNTOP_MILLET
+  SORGHUM // Jowar
+  MIXED
+}
+
+enum HarvestStatus {
+  DRAFT
+  SUBMITTED
+  ADMIN_REVIEW_PENDING
+  ADMIN_APPROVED
+  ADMIN_REJECTED
+  PHYSICAL_TESTING_PENDING
+  SAMPLE_COLLECTION_SCHEDULED
+  SAMPLE_COLLECTED
+  PHYSICAL_TESTING
+  PHYSICAL_TEST_PASSED
+  PHYSICAL_TEST_FAILED
+  PROCUREMENT_PENDING
+  PROCURED
+  MARKETPLACE_APPROVED
+  AVAILABLE_FOR_SALE
+  SOLD_OUT
+}
+
+enum MediaKind {
+  HARVEST
+  GRAIN
+  FARM
+  PACKAGE
+  VIDEO
+}
+
+enum ReviewDecision {
+  APPROVED
+  REJECTED
+  MORE_INFO_REQUESTED
+}
+
+enum PhysicalTestStatus {
+  PENDING
+  COLLECTION_SCHEDULED
+  SAMPLE_COLLECTED
+  TESTING
+  ADDITIONAL_TESTING_REQUIRED
+  PASSED
+  FAILED
+}
+
+enum CheckOutcome {
+  PASS
+  FAIL
+  REQUIRES_REVIEW
+}
+
+enum CollectionStatus {
+  SCHEDULED
+  COLLECTED
+  RECEIVED
+  CANCELLED
+}
+
+enum AttachmentKind {
+  TEST_PHOTO
+  SAMPLE_PHOTO
+  DOCUMENT
+  TEST_REPORT
+}
+
+enum ProcurementStatus {
+  PROCUREMENT_PENDING
+  COLLECTION_SCHEDULED
+  COLLECTED
+  RECEIVED
+  STORED
+  READY_FOR_MARKETPLACE
+}
+
+enum InventoryStatus {
+  IN_STOCK
+  LOW_STOCK
+  OUT_OF_STOCK
+}
+
+enum ProductCategory {
+  WHOLE_GRAIN
+  FLOUR
+  SNACKS
+  READY_MIX
+  OTHER
+}
+
+enum ProductStatus {
+  DRAFT
+  MARKETPLACE_APPROVED
+  AVAILABLE_FOR_SALE
+  SOLD_OUT
+  ARCHIVED
+}
+
+enum FarmerPaymentStatus {
+  PENDING
+  PROCESSING
+  PAID
+  FAILED
+}
+
+enum ExpenseCategory {
+  PROCESSING
+  PACKAGING
+  TRANSPORTATION
+  PAYMENT_GATEWAY_FEES
+  OPERATING
+  OTHER
+}
+
+enum OrderStatus {
+  PLACED
+  CONFIRMED
+  PACKED
+  SHIPPED
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+enum DeliveryMethod {
+  STANDARD
+  EXPRESS
+}
+
+enum PaymentMethod {
+  UPI
+  CARD
+  COD
+}
+
+enum FarmerVerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum HardwareCategory {
+  PROCESSING
+  DEHULLING
+  CLEANING
+  DRYING
+  STORAGE
+  WEIGHING
+  OTHER
+}
+
+enum HardwareStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum HardwareEnquiryStatus {
+  NEW
+  CONTACTED
+  IN_DISCUSSION
+  COMPLETED
+  CANCELLED
+}
+
+enum ComplaintStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+// ───────────────────────────── Users ─────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  phone        String?
+  role         Role     @default(CUSTOMER)
+  isDemo       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  farmer            Farmer?
+  cart              Cart?
+  wishlist          Wishlist?
+  addresses         Address[]
+  orders            Order[]
+  reviews           Review[]
+  notifications     Notification[]
+  adminReviews      AdminReview[]
+  physicalTests     PhysicalTest[]     @relation("TestedBy")
+  sampleCollections SampleCollection[] @relation("CollectedBy")
+  expenses          Expense[]
+  statusEvents      HarvestStatusEvent[]
+  complaints        Complaint[]
+  auditLogs         AuditLog[]
+  hardwareEnquiries HardwareEnquiry[]
+}
+
+model Farmer {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  village      String
+  district     String
+  state        String
+  farmLocation String?
+  upiId        String? // where farmer payments are sent (reference only in demo)
+  verificationStatus FarmerVerificationStatus @default(PENDING)
+  verificationNote   String?
+  verifiedAt         DateTime?
+  isDemo       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  submissions  HarvestSubmission[]
+  procurements Procurement[]
+  payments     FarmerPayment[]
+}
+
+// ─────────────────────── Harvest submission ───────────────────────
+
+model HarvestSubmission {
+  id                String        @id @default(cuid())
+  code              String        @unique // e.g. HS-2026-0001
+  farmerId          String
+  farmer            Farmer        @relation(fields: [farmerId], references: [id], onDelete: Cascade)
+  title             String // e.g. "Premium Ragi"
+  // contact snapshot at submission time
+  contactName       String
+  contactPhone      String
+  contactEmail      String?
+  village           String
+  district          String
+  state             String
+  farmLocation      String?
+  milletType        MilletType
+  harvestDate       DateTime
+  quantityGrams     Int
+  expectedPricePerKgPaise Int
+  cultivationMethod String
+  processingMethod  String
+  storageMethod     String
+  description       String
+  notes             String?
+  status            HarvestStatus @default(DRAFT)
+  infoRequested     Boolean       @default(false) // admin asked farmer for more information
+  isDemo            Boolean       @default(false)
+  submittedAt       DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  media        HarvestImage[]
+  adminReviews AdminReview[]
+  events       HarvestStatusEvent[]
+  physicalTest PhysicalTest?
+  procurement  Procurement?
+
+  @@index([status])
+  @@index([farmerId])
+}
+
+/// Photos/video uploaded by the farmer. For admin reference ONLY — never analysed automatically.
+model HarvestImage {
+  id           String            @id @default(cuid())
+  submissionId String
+  submission   HarvestSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  kind         MediaKind
+  url          String
+  mimeType     String
+  sizeBytes    Int
+  createdAt    DateTime          @default(now())
+}
+
+/// Audit trail used to draw the farmer-facing timeline.
+model HarvestStatusEvent {
+  id           String            @id @default(cuid())
+  submissionId String
+  submission   HarvestSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  status       HarvestStatus
+  note         String?
+  actorId      String?
+  actor        User?             @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  createdAt    DateTime          @default(now())
+
+  @@index([submissionId])
+}
+
+/// Online review of the farmer's submission. This is NOT a quality test.
+model AdminReview {
+  id               String            @id @default(cuid())
+  submissionId     String
+  submission       HarvestSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  reviewerId       String
+  reviewer         User              @relation(fields: [reviewerId], references: [id])
+  decision         ReviewDecision
+  adminNotes       String?
+  comments         String? // shown to the farmer
+  requestedChanges String?
+  createdAt        DateTime          @default(now())
+}
+
+// ───────────────────── Direct physical testing ─────────────────────
+
+/// Configurable checklist used by the quality team (Appearance, Moisture, ...).
+model TestChecklistItem {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String?
+  sortOrder   Int     @default(0)
+  active      Boolean @default(true)
+}
+
+model PhysicalTest {
+  id                String             @id @default(cuid())
+  code              String             @unique // e.g. PT-2026-0001
+  submissionId      String             @unique
+  submission        HarvestSubmission  @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  status            PhysicalTestStatus @default(PENDING)
+  sampleQuantityGrams Int?
+  receivedDate      DateTime?
+  testingLocation   String?
+  batchNumber       String? // sample batch reference
+  testingNotes      String?
+  testStartedAt     DateTime?
+  testDate          DateTime?
+  result            PhysicalTestStatus? // PASSED | FAILED | ADDITIONAL_TESTING_REQUIRED
+  resultReason      String?
+  testedById        String?
+  testedBy          User?              @relation("TestedBy", fields: [testedById], references: [id])
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  collection  SampleCollection?
+  results     PhysicalTestResult[]
+  attachments TestAttachment[]
+}
+
+model SampleCollection {
+  id                 String           @id @default(cuid())
+  physicalTestId     String           @unique
+  physicalTest       PhysicalTest     @relation(fields: [physicalTestId], references: [id], onDelete: Cascade)
+  status             CollectionStatus @default(SCHEDULED)
+  scheduledDate      DateTime
+  collectionDate     DateTime?
+  collectionLocation String
+  collectedById      String?
+  collectedBy        User?            @relation("CollectedBy", fields: [collectedById], references: [id])
+  sampleQuantityGrams Int?
+  notes              String?
+  createdAt          DateTime         @default(now())
+}
+
+/// One checklist line for a physical test. Visual/physical checks — NOT laboratory certification.
+model PhysicalTestResult {
+  id             String       @id @default(cuid())
+  physicalTestId String
+  physicalTest   PhysicalTest @relation(fields: [physicalTestId], references: [id], onDelete: Cascade)
+  parameter      String
+  outcome        CheckOutcome
+  notes          String?
+  createdAt      DateTime     @default(now())
+
+  @@unique([physicalTestId, parameter])
+}
+
+model TestAttachment {
+  id             String         @id @default(cuid())
+  physicalTestId String
+  physicalTest   PhysicalTest   @relation(fields: [physicalTestId], references: [id], onDelete: Cascade)
+  kind           AttachmentKind
+  url            String
+  fileName       String
+  mimeType       String
+  sizeBytes      Int
+  createdAt      DateTime       @default(now())
+}
+
+// ──────────────────── Procurement & inventory ────────────────────
+
+model Procurement {
+  id                      String            @id @default(cuid())
+  code                    String            @unique // e.g. PR-2026-0001
+  submissionId            String            @unique
+  submission              HarvestSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  farmerId                String
+  farmer                  Farmer            @relation(fields: [farmerId], references: [id])
+  milletType              MilletType
+  approvedQuantityGrams   Int
+  actualQuantityGrams     Int?
+  agreedPricePerKgPaise   Int
+  scheduledDate           DateTime?
+  collectionDate          DateTime?
+  receivedDate            DateTime?
+  collectedBy             String?
+  storageLocation         String?
+  status                  ProcurementStatus @default(PROCUREMENT_PENDING)
+  notes                   String?
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
+
+  batch         Batch?
+  farmerPayment FarmerPayment?
+}
+
+model Batch {
+  id            String      @id @default(cuid())
+  batchNumber   String      @unique // e.g. MM-2026-001
+  procurementId String      @unique
+  procurement   Procurement @relation(fields: [procurementId], references: [id], onDelete: Cascade)
+  milletType    MilletType
+  harvestYear   Int
+  createdAt     DateTime    @default(now())
+
+  inventory Inventory?
+  expenses  Expense[]
+}
+
+model Inventory {
+  id                    String          @id @default(cuid())
+  batchId               String          @unique
+  batch                 Batch           @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  quantityReceivedGrams Int
+  quantityAvailableGrams Int
+  quantitySoldGrams     Int             @default(0)
+  lowStockThresholdGrams Int            @default(10000)
+  storageLocation       String
+  purchasePricePerKgPaise Int
+  sellingPricePerKgPaise Int
+  status                InventoryStatus @default(IN_STOCK)
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  products   Product[]
+  orderItems OrderItem[]
+}
+
+// ───────────────────────────── Catalog ─────────────────────────────
+
+model Product {
+  id          String          @id @default(cuid())
+  slug        String          @unique
+  name        String
+  category    ProductCategory
+  milletType  MilletType
+  weightGrams Int // pack size; each unit sold deducts this from inventory
+  pricePaise  Int // selling price per pack
+  mrpPaise    Int // list price, used to show discount
+  description String
+  status      ProductStatus   @default(DRAFT)
+  featured    Boolean         @default(false)
+  inventoryId String
+  inventory   Inventory       @relation(fields: [inventoryId], references: [id])
+  isDemo      Boolean         @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  images        ProductImage[]
+  reviews       Review[]
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  wishlistItems WishlistItem[]
+
+  @@index([status, category])
+  @@index([milletType])
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  alt       String
+  sortOrder Int     @default(0)
+}
+
+// ─────────────────────────── Finance ───────────────────────────
+
+/// Money paid to the farmer for procured harvest. Separate from marketplace sales revenue.
+model FarmerPayment {
+  id                String              @id @default(cuid())
+  procurementId     String              @unique
+  procurement       Procurement         @relation(fields: [procurementId], references: [id], onDelete: Cascade)
+  farmerId          String
+  farmer            Farmer              @relation(fields: [farmerId], references: [id])
+  approvedQuantityGrams Int
+  quantityGrams     Int // actual quantity procured
+  pricePerKgPaise   Int
+  totalAmountPaise  Int
+  status            FarmerPaymentStatus @default(PENDING)
+  paymentDate       DateTime?
+  reference         String?
+  notes             String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+}
+
+model Expense {
+  id          String          @id @default(cuid())
+  category    ExpenseCategory
+  amountPaise Int
+  description String
+  date        DateTime
+  batchId     String?
+  batch       Batch?          @relation(fields: [batchId], references: [id], onDelete: SetNull)
+  orderId     String?
+  order       Order?          @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  createdById String?
+  createdBy   User?           @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  isDemo      Boolean         @default(false)
+  createdAt   DateTime        @default(now())
+
+  @@index([date])
+}
+
+/// Saved monthly snapshot of the profit calculation (computed from live rows, never hardcoded).
+model ProfitRecord {
+  id                   String   @id @default(cuid())
+  period               String   @unique // YYYY-MM
+  grossRevenuePaise    Int
+  farmerPaymentsPaise  Int
+  processingPaise      Int
+  packagingPaise       Int
+  transportationPaise  Int
+  paymentFeesPaise     Int
+  operatingPaise       Int
+  otherPaise           Int
+  netProfitPaise       Int
+  generatedAt          DateTime @default(now())
+}
+
+// ─────────────────────────── Shopping ───────────────────────────
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String     @unique
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  updatedAt DateTime   @updatedAt
+  items     CartItem[]
+}
+
+model CartItem {
+  id        String  @id @default(cuid())
+  cartId    String
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity  Int
+
+  @@unique([cartId, productId])
+}
+
+model Wishlist {
+  id     String         @id @default(cuid())
+  userId String         @unique
+  user   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items  WishlistItem[]
+}
+
+model WishlistItem {
+  id         String   @id @default(cuid())
+  wishlistId String
+  wishlist   Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([wishlistId, productId])
+}
+
+model Address {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName  String
+  phone     String
+  line1     String
+  line2     String?
+  city      String
+  district  String
+  state     String
+  pincode   String
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Order {
+  id             String         @id @default(cuid())
+  code           String         @unique // e.g. ORD-2026-000001
+  userId         String
+  user           User           @relation(fields: [userId], references: [id])
+  status         OrderStatus    @default(PLACED)
+  // shipping address snapshot
+  shipName       String
+  shipPhone      String
+  shipLine1      String
+  shipLine2      String?
+  shipCity       String
+  shipDistrict   String
+  shipState      String
+  shipPincode    String
+  deliveryMethod DeliveryMethod
+  paymentMethod  PaymentMethod
+  subtotalPaise  Int
+  deliveryPaise  Int
+  discountPaise  Int
+  totalPaise     Int
+  isDemo         Boolean        @default(false)
+  placedAt       DateTime       @default(now())
+  confirmedAt    DateTime?
+  packedAt       DateTime?
+  shippedAt      DateTime?
+  outForDeliveryAt DateTime?
+  deliveredAt    DateTime?
+  cancelledAt    DateTime?
+
+  items      OrderItem[]
+  payment    Payment?
+  expenses   Expense[]
+  complaints Complaint[]
+
+  @@index([userId])
+  @@index([placedAt])
+}
+
+model OrderItem {
+  id             String    @id @default(cuid())
+  orderId        String
+  order          Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId      String
+  product        Product   @relation(fields: [productId], references: [id])
+  inventoryId    String
+  inventory      Inventory @relation(fields: [inventoryId], references: [id])
+  productName    String
+  weightGrams    Int
+  quantity       Int
+  unitPricePaise Int
+  lineTotalPaise Int
+}
+
+model Payment {
+  id          String        @id @default(cuid())
+  orderId     String        @unique
+  order       Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  method      PaymentMethod
+  provider    String // "mock" in development, e.g. "razorpay" in production
+  isMock      Boolean       @default(true)
+  amountPaise Int
+  feePaise    Int           @default(0)
+  status      PaymentStatus @default(PENDING)
+  providerRef String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating    Int
+  comment   String
+  isDemo    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@unique([productId, userId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, read])
+}
+
+// ─────────────────────── Support & audit ───────────────────────
+
+/// Customer complaint about an order, handled by admins.
+model Complaint {
+  id         String          @id @default(cuid())
+  userId     String
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderId    String?
+  order      Order?          @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  subject    String
+  message    String
+  status     ComplaintStatus @default(OPEN)
+  resolution String?
+  isDemo     Boolean         @default(false)
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  @@index([status])
+}
+
+/// Append-only record of every successful state-changing action.
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  actor     User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  actorRole String?
+  action    String
+  entity    String?
+  entityId  String?
+  details   String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+// ─────────────────────── Featured hardware for farmers ───────────────────────
+
+/// Agricultural / millet-processing equipment farmers can enquire about. Managed by admins.
+/// List-style fields (features, benefits, specifications, suitableFor, howItWorks) are stored
+/// one item per line; specifications use "Label: Value" lines.
+model HardwareProduct {
+  id             String           @id @default(cuid())
+  name           String
+  slug           String           @unique
+  description    String // short description shown on cards
+  overview       String // longer product overview on the details page
+  mainBenefit    String
+  category       HardwareCategory
+  features       String
+  benefits       String
+  specifications String
+  suitableFor    String
+  howItWorks     String // step-by-step, one step per line (editable by admin)
+  status         HardwareStatus   @default(DRAFT)
+  featured       Boolean          @default(false)
+  publishedAt    DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  images    HardwareProductImage[]
+  enquiries HardwareEnquiry[]
+
+  @@index([status, category])
+}
+
+model HardwareProductImage {
+  id         String          @id @default(cuid())
+  productId  String
+  product    HardwareProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url        String
+  alt        String
+  sortOrder  Int             @default(0)
+  createdAt  DateTime        @default(now())
+}
+
+/// A farmer's enquiry about a hardware product. Handled by admins.
+model HardwareEnquiry {
+  id           String                @id @default(cuid())
+  userId       String
+  user         User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId    String
+  product      HardwareProduct       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity     Int
+  requirement  String?
+  message      String
+  contactName  String
+  contactPhone String
+  status       HardwareEnquiryStatus @default(NEW)
+  adminNote    String?
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+
+  @@index([status])
+  @@index([userId])
+}
