@@ -44,6 +44,8 @@ npm run dev                 # http://localhost:3000
 
 Demo/sample data has been removed. Remaining accounts: `admin@milletmarket.demo` (the initial admin — change its password in **Admin → Settings**), plus `farmer@milletmarket.demo` and `customer@milletmarket.demo`, which own records created during manual testing. Create Quality Team and further admin users at **Admin → Quality Team**; customers and farmers sign up at `/register`.
 
+On a fresh database (e.g. production), create the first admin — or reset a lost password — from the command line: `npx tsx scripts/create-user.ts <email> "<name>" <password> [ADMIN|QUALITY_TEAM]` (uses `DATABASE_URL`).
+
 ---|---|---|
 | Customer | `customer@milletmarket.demo` | Shop → product → *Quality Verification* & *Traceability* → checkout (mock payment) → track order → review |
 | Farmer | `farmer@milletmarket.demo` | Dashboard → **Premium Ragi 100 kg @ ₹150/kg** (pending review) → Submit Harvest from your phone |
