@@ -257,6 +257,7 @@ export const en = {
       DRYING: "Drying",
       STORAGE: "Storage",
       WEIGHING: "Weighing",
+      CROP_PROTECTION: "Crop Protection",
       OTHER: "Other Hardware",
     },
     hardwareStatus: {

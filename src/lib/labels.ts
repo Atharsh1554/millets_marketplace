@@ -133,7 +133,7 @@ export const ORDER_STATUS: Record<string, { label: string; tone: Tone }> = {
   CANCELLED: { label: "Cancelled", tone: "danger" },
 };
 
-export const HARDWARE_CATEGORIES = ["PROCESSING", "DEHULLING", "CLEANING", "DRYING", "STORAGE", "WEIGHING", "OTHER"] as const;
+export const HARDWARE_CATEGORIES = ["PROCESSING", "DEHULLING", "CLEANING", "DRYING", "STORAGE", "WEIGHING", "CROP_PROTECTION", "OTHER"] as const;
 
 export const HARDWARE_STATUS: Record<string, { label: string; tone: Tone }> = {
   DRAFT: { label: "Draft", tone: "neutral" },

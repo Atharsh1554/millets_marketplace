@@ -257,6 +257,7 @@ export const ta: Dictionary = {
       DRYING: "உலர்த்துதல்",
       STORAGE: "சேமிப்பு",
       WEIGHING: "எடையிடுதல்",
+      CROP_PROTECTION: "பயிர் பாதுகாப்பு",
       OTHER: "பிற இயந்திரங்கள்",
     },
     hardwareStatus: {

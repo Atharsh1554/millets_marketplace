@@ -50,6 +50,13 @@ const art = {
     <text x="200" y="227" font-family="monospace" font-size="16" font-weight="700" fill="${dark}" text-anchor="middle">50.0 kg</text>
     <path d="M150 185 L165 110 L235 110 L250 185 Z" fill="${earth}"/>
     <path d="M165 110 Q200 90 235 110" fill="${gold}"/>`, "Weighing equipment"),
+  "crop-protection": FRAME("#e9f2e1", `
+    <g fill="${gold}">${Array.from({ length: 9 }, (_, i) => `<path d="M${50 + i * 36} 250 q-6 -40 0 -70 q6 30 0 70" opacity=".9"/>`).join("")}</g>
+    <rect x="194" y="70" width="12" height="185" rx="4" fill="${steel}"/>
+    <rect x="150" y="62" width="62" height="34" rx="8" fill="${dark}"/><circle cx="160" cy="79" r="10" fill="${cream}"/><circle cx="160" cy="79" r="5" fill="${dark}"/>
+    <path d="M206 120 h26 l26 -18 v56 l-26 -18 h-26 Z" fill="${earth}"/>
+    <path d="M272 112 q14 18 0 36 M286 102 q24 28 0 56" stroke="${earth}" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M300 60 q12 -14 24 0 q12 -14 24 0" stroke="${dark}" stroke-width="5" fill="none" stroke-linecap="round"/>`, "Crop protection equipment"),
   other: FRAME("#eef1ec", `
     <rect x="100" y="150" width="200" height="70" rx="12" fill="${dark}"/>
     <circle cx="140" cy="230" r="22" fill="${steel}"/><circle cx="260" cy="230" r="22" fill="${steel}"/>

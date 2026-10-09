@@ -22,6 +22,7 @@ export const HARDWARE_PLACEHOLDER: Record<HardwareCategory, string> = {
   DRYING: "/hardware/drying.svg",
   STORAGE: "/hardware/storage.svg",
   WEIGHING: "/hardware/weighing.svg",
+  CROP_PROTECTION: "/hardware/crop-protection.svg",
   OTHER: "/hardware/other.svg",
 };
 

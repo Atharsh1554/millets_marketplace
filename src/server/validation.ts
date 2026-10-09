@@ -374,7 +374,7 @@ export const farmerVerificationSchema = z
 
 // ───────────── Featured hardware ─────────────
 
-const HARDWARE_CATEGORIES = ["PROCESSING", "DEHULLING", "CLEANING", "DRYING", "STORAGE", "WEIGHING", "OTHER"] as const;
+const HARDWARE_CATEGORIES = ["PROCESSING", "DEHULLING", "CLEANING", "DRYING", "STORAGE", "WEIGHING", "CROP_PROTECTION", "OTHER"] as const;
 const checkbox = z
   .union([z.literal("on"), z.literal("true"), z.literal("")])
   .optional()

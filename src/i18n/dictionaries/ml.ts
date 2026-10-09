@@ -257,6 +257,7 @@ export const ml: Dictionary = {
       DRYING: "ഉണക്കൽ",
       STORAGE: "സംഭരണം",
       WEIGHING: "തൂക്കം",
+      CROP_PROTECTION: "വിള സംരക്ഷണം",
       OTHER: "മറ്റ് യന്ത്രങ്ങൾ",
     },
     hardwareStatus: {

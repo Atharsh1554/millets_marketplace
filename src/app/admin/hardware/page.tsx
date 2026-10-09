@@ -16,6 +16,7 @@ const CATEGORY_LABEL: Record<string, string> = {
   DRYING: "Drying",
   STORAGE: "Storage",
   WEIGHING: "Weighing",
+  CROP_PROTECTION: "Crop Protection",
   OTHER: "Other Hardware",
 };
 

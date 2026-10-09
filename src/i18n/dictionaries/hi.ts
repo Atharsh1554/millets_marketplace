@@ -257,6 +257,7 @@ export const hi: Dictionary = {
       DRYING: "सुखाना",
       STORAGE: "भंडारण",
       WEIGHING: "तौल",
+      CROP_PROTECTION: "फसल सुरक्षा",
       OTHER: "अन्य उपकरण",
     },
     hardwareStatus: {

@@ -185,6 +185,7 @@ enum HardwareCategory {
   DRYING
   STORAGE
   WEIGHING
+  CROP_PROTECTION
   OTHER
 }
 
