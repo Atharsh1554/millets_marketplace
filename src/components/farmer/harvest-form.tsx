@@ -55,7 +55,7 @@ export function HarvestForm({ defaults, existingMedia = 0 }: { defaults: Harvest
     const next: Picked[] = [];
     for (const f of Array.from(list)) {
       const isVideo = kind === "VIDEO";
-      if (isVideo ? !f.type.startsWith("video/") : !["image/jpeg", "image/png", "image/webp"].includes(f.type)) {
+      if (isVideo ? !f.type.startsWith("video/") : !["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(f.type)) {
         setLocalError(t(isVideo ? "harvestForm.wrongVideo" : "harvestForm.wrongPhoto", { name: f.name }));
         continue;
       }
